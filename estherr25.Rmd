@@ -1,0 +1,110 @@
+---
+title: EJERCICIO FINAL
+author: Esther Gabay
+date: "`r Sys.Date()`" 
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_collapsed: true
+    theme: cayman
+    highlight: github
+toc_depth: 3
+number_sections: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Expresiones Regulares
+<div style="text-align: justify">
+Al realizar una amplia investigación sobre determinadas páginas webs y videosdonde hubiesen recursos de expresiones  regulares útiles y fáciles de usar, he elegidolos siguientes:
+ Ejemplo [A](https://stringr.tidyverse.org/articles/regular-expressions.html)
+  He destacado este ejemplo como bueno, por lo practico y sencillo que es a la hora de  usar la web como herramienta de trabajo, sobre todo para aquellos que no están muy familiarizados con las expresiones regulares.También, por los comentarios, que te explican cada codigo,ejemplos de como se haría según la función que necesitemos en cada momento,así como las excepciones que se pueden ocasionar en cada caso.
+Dentro de la misma web también hay otras opciones de interés como son noticias y nuevas versiones, y para los que no son amigos de r aún hay una pestaña que te dice por dónde empezar y cómo.
+
+En cuanto al ejemplo [B](http://www.endmemo.com/program/R/gsub.php) que elegido usado para contrastar y que hemos asignado como el malo por darle un nombre, podemos destacar que solo tiene una función y algo de sintásis que te explica pero muy reducido.También señalamos que hay tutoriales a la derecha pero son de otros lenguajes de programación,aunque junto a estos hay varias funciones que cuando hacer link a la pagina te lleva a otra web donde te explica de forma similar a lo anterior como aplicar esa función.
+
+Como conclusión, asignamos la url [A](https://stringr.tidyverse.org/articles/regular-expressions.html) como la más intuitiva de usar, práctica y útil a la hora de tener una herramienta de expresiones regulares que usar para trabajar.
+
+
+
+## R Markdown
+<div style="text-align: justify">
+A la hora de buscar una herramienta de trabajo sobre markdown, hemos llegado a la conclusión de que:
+Opción [C](https://rmarkdown.rstudio.com/lesson-9.html) es mejor que opción  [D](https://www.maximaformacion.es/blog-dat/rmarkdown-para-principiantes/) porque según el proyecto en el que estes trabajando, puedes irte al menu y mirar qué es lo que buscas y dónde esta la solución a tu pregunta, por lo que me parece la web más completa de todas las que he investigado.Además, en la url [C](https://rmarkdown.rstudio.com/lesson-9.html) te indica paso a paso desde introducirte markdown hasta mapas interactivos, cada pestaña bien explicada con su ejemplo, para saber como aplicarlo luego en r.Sin embargo, la opción [D](https://www.maximaformacion.es/blog-dat/rmarkdown-para-principiantes/) al ser un video tutorial, está más enfocado a principiantes que quieran seguir un curso de rmarkdown que a tenerlo como herramienta de trabajo, por el simple hecho de que si cada vez que necesitamos hacer una consulta tenemos que ir a ver el video, entonces perdemos mucho tiempo en una simple cuestión.
+
+Como conclusión, elegimos la opción [C](https://rmarkdown.rstudio.com/lesson-9.html) por la variedad de opciones que tiene a la hora de encontrar las funciones necesarias en el trabajo que estemos realizando.
+
+
+## Gráficos - Tablas - Comentarios
+<div style="text-align: justify">
+Antes de empezar hablar de gráficos y tablas, vamos a explicar que es dow jones, pues bien es un indice bursatil que fue creado por un periodista de Wall Street en el que se mide el desempeño de las treinta mayores sociedades anónimas  que cotizan en el mercado bursátil de Estados Unidos.Este indice se calcula dividiendo el valor total de las acciones por número de estas.Sin embargo, para compensar los efectos del desdoblamiento de acciones que se da cuando una empresa aumenta las acciones manteniendo el valor de su capitalización de mercado,dando lugar a un número de acciones mayor con un valor menor cada una, el valor total pasó a dividirse por una fórmula matemática que da mayor peso a la empresas grandes.A causa de ellos,y un ejemplo es que los títulos de Microsoft tienen más peso que las acciones de una empresa con una capitalización pequeña.A continuación, vamos a explicar la tabla que podemos con algunas de las empresas y con su valor de cotización en el día 17/11/2019.
+
+
+
+
+```{r paquetes, include= FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(rvest)
+library(lubridate)
+library(knitr)
+library(highcharter)
+library(xml2)
+
+```
+### Tabla
+```{r tabla, include = FALSE, echo=FALSE}
+url.bolsa<- "https://www.libremercado.com/mercados/dow-jones/"
+tmp1 <- read_html(url.bolsa)
+tmp1 <- html_nodes(tmp1,"table")
+length(tmp1)
+summary(tmp1)
+sapply(tmp1, function(x) dim(html_table(x, fill = TRUE)))
+bolsa <- html_table(tmp1[[5]])
+table<-summary(bolsa)
+```
+
+```{r bolsa, echo=FALSE, include= FALSE}
+str(bolsa)
+colnames(bolsa)<- c("Nombre", "Último", "Diferencia", 
+                  "Diferencia porcentual", "Volumen", "Hora")
+str(bolsa)
+gsub(pattern = "\\.",replacement = "", x = bolsa$Volumen)
+
+bolsa$Último <- as.numeric(gsub(pattern = ",", 
+                              replacement = ".", x = bolsa$Último))
+bolsa$Volumen <- as.numeric(gsub(pattern = "\\.",replacement = "", x = bolsa$Volumen))
+str(bolsa)
+tabla2<-head(bolsa)
+```
+
+
+```{r resumen, echo=FALSE }
+kable(tabla2)
+```
+
+Como podemos apreciar en la tabla, es Apple la compañia que lidera en volumen de acciones.En cuestión de un período de tiempo de diferencia de minutos es 3M Company la que menor volumen de acciones presenta.También podemos observar la situación de las compañias a una determinada hora, como por ejemplo a las 22:52 en la que tenemos en cabeza a Amer.Express, luego Boeingco.,seguido de 3M Company y Carterpilar.No podemos dejar de comentar que el valor de las acciones de Wall Street están decayendo cada vez más debido a la situación entre Estados Unido y China que les está afectando de forma totalmente directa a las compañias americanas. que hay compañias como  debido aEl que menos 3mcompany y el que más apple
+
+### Gráfico de puntos y dinámico
+```{r, echo=FALSE}
+
+ggplot(bolsa, aes(x = Nombre, y = Volumen, col = "Volumen de las acciones por compañia")) +
+  geom_point(colour="green") +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+<div style="text-align: justify">
+En el gráfico de puntos verdes tenemos todas las empresas con su volumen de acciones el día diecisiete de noviembre.Según este gráfico, podemos destacar las tres empresas americanas que mayor volumen de acciones presentan que son en orden de mayor a menor:Pfizer, seguida de cisco System y por último Apple.
+En cuanto a las tres compañias americanas que menor volumen presentan en el gráfico tenemos de menor a mayor:Travelers, Goldman y Cater Pilar.No hemos podido hallar una línea dentro del gráfico de puntos debido a que los desniveles entre una empresa y otra son bastantes.
+
+```{r, echo=FALSE, warning=FALSE}
+hchart(bolsa, "line", hcaes(x = Nombre, y = Volumen, group = Hora)) %>% hc_add_theme(hc_theme_ffx())
+
+```
+<div style="text-align: justify">
+Como podemos observar en el gráfico dinámico que tenemos justo arriba, podemos ver el volumen de las acciones de las empresas americanas según el indice bursatil de Dow Jones en función de rangos horarios.Destacamos como en el gráfico de puntos las empresas americanas con más valor que se sitúan en la cima que son Pfizer, Cisco System y Apple pero en distintos tramos horarios.
+Por otro lado, las que menos valor tienen, al igual que en el gráfico de puntos son: Travelers, Goldman y Caterpillar.
+Por último, vamos a comentar dos tramos horarios en los que hubo picos significativos en relación a las compañias estadounidenses.En el tramo horario de las 22:52h destacamos los picos altos de Coca Cola con catorce millones aproximadamente, seguido de Jp Morgan con once millones.Sin embargo los picos más bajos los tienen Untd.Techns con cuatro millones y 3M Company con tres millones.A las 23:59 es Cisco System la compañia que lidera con veintinueve millones, seguida de Apple con veintiseis millones.Por otro lado, los picos bajos en esa hora lo tienen Walgreens con siete millones e Intel Corp con veinticuatro millones(en este caso no es un pico muy pronunciado con respecto a los altos).
+En conclusión a este gráfico podemos decir que depende de la hora, el volumen de las acciones estadounidenses varían bastante, como hemos visto anteriormente.
+
+<div/>
